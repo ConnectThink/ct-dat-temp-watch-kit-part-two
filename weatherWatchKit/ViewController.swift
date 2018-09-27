@@ -8,10 +8,11 @@
 
 import CoreLocation
 import UIKit
+import WatchConnectivity
 
-class ViewController: UIViewController, CLLocationManagerDelegate {
+class ViewController: UIViewController, CLLocationManagerDelegate, WCSessionDelegate {
     
-    // MARK: - Variables
+    // MARK: - UI
     
     @IBOutlet weak var backgroundImageView: UIImageView!
     
@@ -19,35 +20,45 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     @IBOutlet weak var temperatureLabel: UILabel!
     
-    private let locationManager = CLLocationManager()
+    // MARK: - Variables
     
-    private let weatherService: WeatherServiceProtocol = OpenWeatherMapWeatherService()
+    let locationManager = CLLocationManager()
     
-    private let datastore: DatastoreProtocol = SharedUserDefaultsDatastore()
+    let weatherService: WeatherServiceProtocol = OpenWeatherMapWeatherService()
+    
+    let datastore: DatastoreProtocol = SharedUserDefaultsDatastore()
+    
+    var session: WCSession?
     
     // MARK: -
     
-    @IBAction func refreshButtonTouchUpInside(sender: AnyObject) {
+    @IBAction func refreshButtonTouchUpInside(_ sender: AnyObject) {
+        updateCurrentLocation()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
         updateCurrentLocation()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let savedTemperature: Int? = datastore.load(key:kTemperatureKey)
-        if let temp = savedTemperature? {
-            println("savedTemperature = \(temp)")
+        let savedTemperature: Int? = datastore.load(key: kTemperatureKey)
+        if let temp = savedTemperature {
+            print("savedTemperature = \(temp)")
             temperatureLabel.text = "\(temp)"
         }
         else {
             temperatureLabel.text = "?"
         }
-    }
-    
-    override func viewDidAppear(animated: Bool) {
-        super.viewDidAppear(animated)
         
-        updateCurrentLocation()
+        if WCSession.isSupported() {
+            session = WCSession.default
+            session?.delegate = self
+            session?.activate()
+        }
     }
     
     // MARK: - Location Handling
@@ -63,34 +74,50 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
     
-    func locationManager(manager: CLLocationManager!, didFailWithError error: NSError!) {
-        println(error)
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
     }
     
-    func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         manager.stopUpdatingLocation()
         
-        let coordinate = manager.location.coordinate
-        
-        println("location = \(coordinate.latitude) \(coordinate.longitude)")
-        
-        updateTemperatureWithCoordinate(coordinate)
+        if let coordinate = manager.location?.coordinate {
+            print("location = \(coordinate.latitude) \(coordinate.longitude)")
+            updateTemperatureWithCoordinate(coordinate)
+        }
     }
     
-    // MARK: - Temperature Handling
+    // MARK: Temperture Handling
     
-    private func updateTemperatureWithCoordinate(coordinate: CLLocationCoordinate2D) {
+    private func updateTemperatureWithCoordinate(_ coordinate: CLLocationCoordinate2D) {
         weatherService.retrieveTemperatureAtCoordinate(coordinate,
             success: { (temp) -> () in
                 let temperature = Int(temp)
                 self.temperatureLabel.text = "\(temperature)"
-                
-                self.datastore.save(key: kTemperatureKey, value: temperature)
+                self.datastore.save(key: kTemperatureKey, value: temperature as NSObject)
                 self.datastore.commitToDisk()
+                
+                let applicationContext = [ kTemperatureKey : temperature ]
+                try! self.session?.updateApplicationContext(applicationContext)
             },
             failure: { (errorMessage) -> () in
-                println(errorMessage)
+                print(errorMessage)
         })
     }
+    
+    // MARK: - WCSessionDelegate
+    
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        
+    }
+    
+    func sessionDidBecomeInactive(_ session: WCSession) {
+        
+    }
+    
+    func sessionDidDeactivate(_ session: WCSession) {
+        
+    }
+    
 }
 

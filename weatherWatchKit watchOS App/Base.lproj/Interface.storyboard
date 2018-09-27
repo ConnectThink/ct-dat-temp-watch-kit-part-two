@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14313.18" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+    <device id="watch38" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14238.10"/>
+    </dependencies>
+    <scenes>
+        <!--Interface Controller-->
+        <scene sceneID="aou-V4-d1y">
+            <objects>
+                <controller id="AgC-eL-Hgc" customClass="InterfaceController" customModule="weatherWatchKit_watchOS_App" customModuleProvider="target">
+                    <items>
+                        <group width="1" height="1" alignment="left" layout="vertical" id="B2f-FK-1F2">
+                            <items>
+                                <label width="1" height="0.20000000000000001" alignment="center" verticalAlignment="center" text="Dat Temp" textAlignment="center" id="Z1k-cm-1QW"/>
+                                <label width="1" height="0.80000000000000004" alignment="center" verticalAlignment="center" text="?" textAlignment="center" id="NC9-ac-AB2">
+                                    <fontDescription key="font" type="system" pointSize="80"/>
+                                </label>
+                            </items>
+                        </group>
+                    </items>
+                    <connections>
+                        <outlet property="temperatureLabel" destination="NC9-ac-AB2" id="Z2A-kl-j0M"/>
+                    </connections>
+                </controller>
+            </objects>
+        </scene>
+    </scenes>
+</document>

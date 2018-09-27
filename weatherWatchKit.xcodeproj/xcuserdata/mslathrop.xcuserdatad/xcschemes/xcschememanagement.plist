@@ -9,6 +9,16 @@
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
+		<key>weatherWatchKit watchOS App (Complication).xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>5</integer>
+		</dict>
+		<key>weatherWatchKit watchOS App.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
 		<key>weatherWatchKit.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -28,11 +38,6 @@
 			<true/>
 		</dict>
 		<key>66CCC4501A6449A100FF2CA9</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>66E9049E1A6DA5F100A7DCA5</key>
 		<dict>
 			<key>primary</key>
 			<true/>
