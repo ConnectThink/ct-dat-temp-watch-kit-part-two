@@ -21,6 +21,15 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
         
+        let savedTemperature: Int? = datastore.load(key: kTemperatureKey)
+        if let temp = savedTemperature {
+            print("savedTemperature = \(temp)")
+            temperatureLabel.setText("\(temp)")
+        }
+        else {
+            temperatureLabel.setText("?")
+        }
+        
         if WCSession.isSupported() {
             session = WCSession.default
             session?.delegate = self
@@ -40,8 +49,11 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
     func loadTemperatureFromApplicationContext() {
         if let applicationContext = session?.receivedApplicationContext {
-            if let savedTemperature = applicationContext[kTemperatureKey] {
+            if let savedTemperature = applicationContext[kTemperatureKey] as? Int {
                 print("\(savedTemperature)")
+                
+                self.datastore.save(key: kTemperatureKey, value: savedTemperature as NSObject)
+                self.datastore.commitToDisk()
                 
                 DispatchQueue.main.async {
                     self.temperatureLabel.setText("\(savedTemperature)")
