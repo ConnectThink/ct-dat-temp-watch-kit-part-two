@@ -11,6 +11,8 @@ import ClockKit
 
 class ComplicationController: NSObject, CLKComplicationDataSource {
     
+    let datastore: DatastoreProtocol = SharedUserDefaultsDatastore()
+    
     // MARK: - Timeline Configuration
     
     func getSupportedTimeTravelDirections(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimeTravelDirections) -> Void) {
@@ -32,7 +34,13 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     // MARK: - Timeline Population
     
     func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void) {
-        if let template = template(for: complication, text: "66") {
+        var text = "?"
+        let savedTemperature: Int? = datastore.load(key: kTemperatureKey)
+        if let temp = savedTemperature {
+            text = "\(temp)"
+        }
+        
+        if let template = template(for: complication, text: text) {
             handler(CLKComplicationTimelineEntry(date: Date(), complicationTemplate: template))
         } else {
             handler(nil)
